@@ -5,8 +5,8 @@ export interface Database {
         Tables: {
             profiles: {
                 Row: Profile;
-                Insert: Omit<Profile, 'id' | 'created_at' | 'updated_at'>;
-                Update: Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>;
+                Insert: Omit<Profile, 'created_at' | 'updated_at'>;
+                Update: Partial<Omit<Profile, 'created_at' | 'updated_at'>>;
             };
             students: {
                 Row: Student;
