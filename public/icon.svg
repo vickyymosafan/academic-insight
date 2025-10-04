@@ -1,0 +1,23 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" rx="128" fill="#2563eb"/>
+  
+  <!-- Graduation cap icon -->
+  <g transform="translate(96, 128)">
+    <!-- Cap top -->
+    <path d="M160 64L320 128L160 192L0 128L160 64Z" fill="#ffffff"/>
+    
+    <!-- Cap tassel -->
+    <circle cx="320" cy="128" r="16" fill="#fbbf24"/>
+    <line x1="320" y1="144" x2="320" y2="176" stroke="#fbbf24" stroke-width="4"/>
+    
+    <!-- Left side -->
+    <path d="M32 144V208C32 224 80 240 160 240C240 240 288 224 288 208V144" stroke="#ffffff" stroke-width="16" fill="none"/>
+    
+    <!-- Book/Chart representation -->
+    <rect x="80" y="200" width="160" height="96" rx="8" fill="#60a5fa"/>
+    <line x1="100" y1="230" x2="220" y2="230" stroke="#ffffff" stroke-width="4"/>
+    <line x1="100" y1="250" x2="200" y2="250" stroke="#ffffff" stroke-width="4"/>
+    <line x1="100" y1="270" x2="210" y2="270" stroke="#ffffff" stroke-width="4"/>
+  </g>
+</svg>

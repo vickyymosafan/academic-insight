@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generate PWA Icons</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .icon-preview {
+      display: flex;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    canvas {
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+  </style>
+</head>
+<body>
+  <h1>Generate PWA Icons</h1>
+  <p>Click the buttons below to download the icon files for your PWA.</p>
+  
+  <div class="icon-preview">
+    <div>
+      <h3>192x192</h3>
+      <canvas id="canvas192" width="192" height="192"></canvas>
+      <br>
+      <button onclick="downloadIcon(192)">Download 192x192</button>
+    </div>
+    <div>
+      <h3>512x512</h3>
+      <canvas id="canvas512" width="512" height="512"></canvas>
+      <br>
+      <button onclick="downloadIcon(512)">Download 512x512</button>
+    </div>
+  </div>
+
+  <script>
+    function drawIcon(canvas) {
+      const ctx = canvas.getContext('2d');
+      const size = canvas.width;
+      const scale = size / 512;
+
+      // Background with rounded corners
+      ctx.fillStyle = '#2563eb';
+      ctx.beginPath();
+      ctx.roundRect(0, 0, size, size, size * 0.25);
+      ctx.fill();
+
+      // Scale all subsequent drawings
+      ctx.scale(scale, scale);
+
+      // Graduation cap
+      ctx.fillStyle = '#ffffff';
+      
+      // Cap top (polygon)
+      ctx.beginPath();
+      ctx.moveTo(256, 160);
+      ctx.lineTo(416, 224);
+      ctx.lineTo(256, 288);
+      ctx.lineTo(96, 224);
+      ctx.closePath();
+      ctx.fill();
+
+      // Cap tassel
+      ctx.fillStyle = '#fbbf24';
+      ctx.beginPath();
+      ctx.arc(416, 224, 16, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(416, 240);
+      ctx.lineTo(416, 272);
+      ctx.stroke();
+
+      // Left side of cap
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 16;
+      ctx.beginPath();
+      ctx.moveTo(128, 240);
+      ctx.lineTo(128, 304);
+      ctx.bezierCurveTo(128, 320, 176, 336, 256, 336);
+      ctx.bezierCurveTo(336, 336, 384, 320, 384, 304);
+      ctx.lineTo(384, 240);
+      ctx.stroke();
+
+      // Book/Chart representation
+      ctx.fillStyle = '#60a5fa';
+      ctx.beginPath();
+      ctx.roundRect(176, 296, 160, 96, 8);
+      ctx.fill();
+
+      // Lines on book
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(196, 326);
+      ctx.lineTo(316, 326);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(196, 346);
+      ctx.lineTo(296, 346);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(196, 366);
+      ctx.lineTo(306, 366);
+      ctx.stroke();
+    }
+
+    function downloadIcon(size) {
+      const canvas = document.getElementById(`canvas${size}`);
+      const link = document.createElement('a');
+      link.download = `icon-${size}x${size}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    // Draw icons on page load
+    window.onload = function() {
+      drawIcon(document.getElementById('canvas192'));
+      drawIcon(document.getElementById('canvas512'));
+    };
+  </script>
+</body>
+</html>
