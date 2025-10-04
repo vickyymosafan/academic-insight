@@ -6,7 +6,12 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:rls": "node supabase/tests/run-rls-tests.js",
+    "test:rls:sql": "psql %SUPABASE_DB_URL% -f supabase/tests/rls_policy_tests.sql",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:reset": "supabase db reset"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.10.0",
