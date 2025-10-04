@@ -1,91 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import StatCard from './StatCard';
 import ChartContainer from './ChartContainer';
-import { supabase } from '@/lib/supabaseClient';
+import { useRealtimeDashboardStats } from '@/hooks/useRealtimeDashboardStats';
 import {
   UsersIcon,
   AcademicCapIcon,
   ChartBarIcon,
   ExclamationTriangleIcon,
+  SignalIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 
-interface Student {
-  status: 'aktif' | 'lulus' | 'dropout' | 'cuti';
-  ipk: number | null;
-}
-
-interface DashboardStats {
-  total_students: number;
-  active_students: number;
-  graduated_students: number;
-  dropout_students: number;
-  average_gpa: number;
-  graduation_rate: number;
-  dropout_rate: number;
-}
-
 export default function DashboardOverview() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchDashboardStats();
-  }, []);
-
-  const fetchDashboardStats = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Fetch students data
-      const { data: students, error: studentsError } = await supabase
-        .from('students')
-        .select('status, ipk') as { data: Student[] | null; error: Error | null };
-
-      if (studentsError) {
-        throw studentsError;
-      }
-
-      if (!students) {
-        throw new Error('No data received from database');
-      }
-
-      // Calculate statistics
-      const totalStudents = students.length;
-      const activeStudents = students.filter(s => s.status === 'aktif').length;
-      const graduatedStudents = students.filter(s => s.status === 'lulus').length;
-      const dropoutStudents = students.filter(s => s.status === 'dropout').length;
-      
-      // Calculate average GPA (only for students with GPA > 0)
-      const studentsWithGPA = students.filter(s => s.ipk && s.ipk > 0);
-      const averageGPA = studentsWithGPA.length > 0 
-        ? studentsWithGPA.reduce((sum, s) => sum + (s.ipk || 0), 0) / studentsWithGPA.length
-        : 0;
-
-      // Calculate rates
-      const graduationRate = totalStudents > 0 ? (graduatedStudents / totalStudents) * 100 : 0;
-      const dropoutRate = totalStudents > 0 ? (dropoutStudents / totalStudents) * 100 : 0;
-
-      setStats({
-        total_students: totalStudents,
-        active_students: activeStudents,
-        graduated_students: graduatedStudents,
-        dropout_students: dropoutStudents,
-        average_gpa: averageGPA,
-        graduation_rate: graduationRate,
-        dropout_rate: dropoutRate,
-      });
-
-    } catch (err) {
-      console.error('Error fetching dashboard stats:', err);
-      setError(err instanceof Error ? err.message : 'Terjadi kesalahan saat memuat data');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { stats, loading, error, refetch, realtimeStatus, reconnect } = useRealtimeDashboardStats();
+  const [showRealtimeIndicator, setShowRealtimeIndicator] = useState(true);
 
   if (error) {
     return (
@@ -104,7 +34,7 @@ export default function DashboardOverview() {
             <div className="mt-4">
               <button
                 type="button"
-                onClick={fetchDashboardStats}
+                onClick={refetch}
                 className="bg-red-100 px-3 py-2 rounded-md text-sm font-medium text-red-800 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
                 Coba Lagi
@@ -118,6 +48,69 @@ export default function DashboardOverview() {
 
   return (
     <div className="space-y-6">
+      {/* Realtime Status Indicator */}
+      {showRealtimeIndicator && (
+        <div className={`rounded-md p-4 transition-all duration-300 ${
+          realtimeStatus.isConnected 
+            ? 'bg-green-50 border border-green-200' 
+            : 'bg-yellow-50 border border-yellow-200'
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                {realtimeStatus.isConnected ? (
+                  <SignalIcon className="h-5 w-5 text-green-400 animate-pulse" aria-hidden="true" />
+                ) : (
+                  <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400" aria-hidden="true" />
+                )}
+              </div>
+              <div className="ml-3">
+                <h3 className={`text-sm font-medium ${
+                  realtimeStatus.isConnected ? 'text-green-800' : 'text-yellow-800'
+                }`}>
+                  {realtimeStatus.isConnected 
+                    ? '🔴 Live - Data diperbarui secara real-time' 
+                    : 'Koneksi real-time terputus'}
+                </h3>
+                {realtimeStatus.lastUpdate && (
+                  <p className={`text-xs mt-1 ${
+                    realtimeStatus.isConnected ? 'text-green-700' : 'text-yellow-700'
+                  }`}>
+                    Update terakhir: {new Date(realtimeStatus.lastUpdate).toLocaleTimeString('id-ID')}
+                  </p>
+                )}
+                {realtimeStatus.error && (
+                  <p className="text-xs mt-1 text-red-700">
+                    Error: {realtimeStatus.error}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              {!realtimeStatus.isConnected && (
+                <button
+                  type="button"
+                  onClick={reconnect}
+                  className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+                >
+                  <ArrowPathIcon className="h-4 w-4 mr-1" />
+                  Reconnect
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowRealtimeIndicator(false)}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <span className="sr-only">Tutup</span>
+                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Statistics Cards Grid */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard

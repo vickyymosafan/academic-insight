@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import {
   BarChart,
   Bar,
@@ -16,7 +16,7 @@ import {
   LineChart,
   Line,
 } from 'recharts';
-import { supabase } from '@/lib/supabaseClient';
+import { useRealtimeStudents } from '@/hooks/useRealtimeStudents';
 
 interface Student {
   status: 'aktif' | 'lulus' | 'dropout' | 'cuti';
@@ -42,58 +42,28 @@ interface ChartContainerProps {
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
 
 export default function ChartContainer({ type, title, height = 300 }: ChartContainerProps) {
-  const [data, setData] = useState<ChartData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Use realtime hook to get students data
+  const { students, loading, error, refetch } = useRealtimeStudents({
+    enabled: true,
+  });
 
-  useEffect(() => {
-    fetchChartData();
-  }, [type]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Calculate chart data based on realtime students data
+  const data = useMemo(() => {
+    if (!students || students.length === 0) return [];
 
-  const fetchChartData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const { data: students, error: studentsError } = await supabase
-        .from('students')
-        .select('status, ipk, program_studi, angkatan, semester_current') as { data: Student[] | null; error: Error | null };
-
-      if (studentsError) {
-        throw studentsError;
-      }
-
-      if (!students) {
-        throw new Error('No data received from database');
-      }
-
-      let chartData: ChartData[] = [];
-
-      switch (type) {
-        case 'gpa-distribution':
-          chartData = generateGPADistribution(students);
-          break;
-        case 'graduation-trends':
-          chartData = generateGraduationTrends(students);
-          break;
-        case 'dropout-analysis':
-          chartData = generateDropoutAnalysis(students);
-          break;
-        case 'program-distribution':
-          chartData = generateProgramDistribution(students);
-          break;
-        default:
-          chartData = [];
-      }
-
-      setData(chartData);
-    } catch (err) {
-      console.error('Error fetching chart data:', err);
-      setError(err instanceof Error ? err.message : 'Terjadi kesalahan saat memuat data chart');
-    } finally {
-      setLoading(false);
+    switch (type) {
+      case 'gpa-distribution':
+        return generateGPADistribution(students);
+      case 'graduation-trends':
+        return generateGraduationTrends(students);
+      case 'dropout-analysis':
+        return generateDropoutAnalysis(students);
+      case 'program-distribution':
+        return generateProgramDistribution(students);
+      default:
+        return [];
     }
-  };
+  }, [students, type]);
 
   const generateGPADistribution = (students: Student[]): ChartData[] => {
     const studentsWithGPA = students.filter(s => s.ipk && s.ipk > 0);
@@ -244,7 +214,7 @@ export default function ChartContainer({ type, title, height = 300 }: ChartConta
           <div className="text-center">
             <p className="text-red-600 mb-2">{error}</p>
             <button
-              onClick={fetchChartData}
+              onClick={refetch}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
               Coba Lagi
