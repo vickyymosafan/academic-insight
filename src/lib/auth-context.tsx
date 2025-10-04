@@ -1,9 +1,9 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { User } from '@supabase/supabase-js';
 import { supabase } from './supabaseClient';
-import type { AuthUser, AuthContextType, LoginCredentials, UserProfile } from '@/types/auth';
+import type { AuthUser, AuthContextType, LoginCredentials } from '@/types/auth';
 import type { Profile } from '@/types/database';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -80,19 +80,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         // If profile doesn't exist, create a default one
         if (profileError.code === 'PGRST116') {
-          const newProfile: Omit<Profile, 'created_at' | 'updated_at'> = {
+          type ProfileInsert = {
+            id: string;
+            full_name: string;
+            avatar_url?: string | null;
+            department?: string | null;
+            role: 'dosen' | 'admin';
+          };
+
+          const newProfile: ProfileInsert = {
             id: authUser.id,
             full_name: authUser.email?.split('@')[0] || 'User',
-            avatar_url: undefined,
-            department: undefined,
+            avatar_url: null,
+            department: null,
             role: 'dosen',
           };
 
-          const { data: createdProfile, error: createError } = await supabase
+          const { data: createdProfile, error: createError } = await (supabase
             .from('profiles')
-            .insert(newProfile as any)
+            .insert(newProfile as never)
             .select()
-            .single();
+            .single());
 
           if (createError) {
             console.error('Error creating profile:', createError);

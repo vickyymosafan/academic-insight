@@ -165,7 +165,7 @@ export default function DataTable<T extends Record<string, unknown>>({
                     >
                       {column.render 
                         ? column.render(item[column.key], item)
-                        : item[column.key]
+                        : (item[column.key] as React.ReactNode)
                       }
                     </td>
                   ))}
@@ -193,7 +193,7 @@ export default function DataTable<T extends Record<string, unknown>>({
                     <span className="text-sm text-gray-900 ml-2 text-right">
                       {column.render 
                         ? column.render(item[column.key], item)
-                        : item[column.key]
+                        : (item[column.key] as React.ReactNode)
                       }
                     </span>
                   </div>

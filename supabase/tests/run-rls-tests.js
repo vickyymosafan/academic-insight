@@ -5,9 +5,8 @@
  * This script runs various tests to verify Row Level Security policies
  */
 
-const { execSync, spawn } = require('child_process');
+const { execSync } = require('child_process');
 const fs = require('fs');
-const path = require('path');
 
 // Colors for console output
 const colors = {

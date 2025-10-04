@@ -67,6 +67,7 @@ export function useRealtimeSubscription<T extends Record<string, unknown> = Reco
     return () => {
       cleanup();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [table, event, filter, enabled]);
 
   const setupSubscription = () => {

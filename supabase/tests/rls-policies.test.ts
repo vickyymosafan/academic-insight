@@ -108,6 +108,7 @@ describe('Row Level Security Policies', () => {
           .select()
 
         // Should return empty array due to RLS
+        expect(error).toBeDefined()
         expect(data).toEqual([])
       }
     })
@@ -185,7 +186,7 @@ describe('Row Level Security Policies', () => {
           }
         })
 
-        const { data, error } = await supabaseAuth
+        const { error } = await supabaseAuth
           .from('students')
           .insert({
             nim: 'LECTURER001',
@@ -276,6 +277,7 @@ describe('Row Level Security Policies', () => {
           .select()
 
         // Should return empty array due to RLS
+        expect(error).toBeDefined()
         expect(data).toEqual([])
       }
     })
