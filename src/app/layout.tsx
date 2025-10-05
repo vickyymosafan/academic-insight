@@ -4,8 +4,15 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { ToastProvider } from "@/lib/toast-context";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import InstallPrompt from "@/components/InstallPrompt";
-import OfflineIndicator from "@/components/OfflineIndicator";
+import dynamic from "next/dynamic";
+
+// Lazy load non-critical components for better initial load performance
+const InstallPrompt = dynamic(() => import("@/components/InstallPrompt"), {
+  ssr: false,
+});
+const OfflineIndicator = dynamic(() => import("@/components/OfflineIndicator"), {
+  ssr: false,
+});
 
 const inter = Inter({
   subsets: ["latin"],

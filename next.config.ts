@@ -4,6 +4,31 @@ import withPWA from "@ducanh2912/next-pwa";
 const nextConfig: NextConfig = {
   /* config options here */
   
+  // Image optimization
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60 * 60 * 24 * 365, // 1 year
+  },
+
+  // Compiler optimizations
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
+
+  // Experimental features for better performance
+  experimental: {
+    optimizePackageImports: ['@heroicons/react', 'recharts'],
+  },
+
+  // Production optimizations
+  productionBrowserSourceMaps: false,
+  poweredByHeader: false,
+  compress: true,
+
   // Security headers
   async headers() {
     return [
@@ -73,7 +98,12 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withPWA({
+// Bundle analyzer wrapper (optional, install @next/bundle-analyzer if needed)
+const withBundleAnalyzer = process.env.ANALYZE === 'true'
+  ? require('@next/bundle-analyzer')({ enabled: true })
+  : (config: NextConfig) => config;
+
+export default withBundleAnalyzer(withPWA({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
   register: true,
@@ -223,4 +253,4 @@ export default withPWA({
     },
     ],
   },
-})(nextConfig);
+}))(nextConfig);

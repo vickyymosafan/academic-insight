@@ -1,7 +1,17 @@
 'use client';
 
 import { useAuth } from '@/lib/auth-context';
-import DashboardOverview from '@/components/dashboard/DashboardOverview';
+import dynamic from 'next/dynamic';
+import DashboardOverviewSkeleton from '@/components/skeletons/DashboardOverviewSkeleton';
+
+// Lazy load DashboardOverview component for better performance
+const DashboardOverview = dynamic(
+  () => import('@/components/dashboard/DashboardOverview'),
+  {
+    loading: () => <DashboardOverviewSkeleton />,
+    ssr: false,
+  }
+);
 
 export default function DashboardPage() {
   const { user } = useAuth();
