@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { ToastProvider } from "@/lib/toast-context";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import InstallPrompt from "@/components/InstallPrompt";
 import OfflineIndicator from "@/components/OfflineIndicator";
 
@@ -50,13 +51,15 @@ export default function RootLayout({
   return (
     <html lang="id" className={inter.variable}>
       <body className="font-sans antialiased bg-background text-foreground">
-        <AuthProvider>
-          <ToastProvider>
-            {children}
-            <InstallPrompt />
-            <OfflineIndicator />
-          </ToastProvider>
-        </AuthProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <ToastProvider>
+              {children}
+              <InstallPrompt />
+              <OfflineIndicator />
+            </ToastProvider>
+          </AuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
