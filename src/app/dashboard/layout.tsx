@@ -22,7 +22,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <Header />
           
           {/* Page content */}
-          <main className="py-6">
+          <main id="main-content" className="py-6">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               {children}
             </div>

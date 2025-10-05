@@ -2,13 +2,13 @@
 
 import { useAuth } from '@/lib/auth-context';
 import dynamic from 'next/dynamic';
-import DashboardOverviewSkeleton from '@/components/skeletons/DashboardOverviewSkeleton';
+import DashboardSkeleton from '@/components/skeletons/DashboardSkeleton';
 
 // Lazy load DashboardOverview component for better performance
 const DashboardOverview = dynamic(
   () => import('@/components/dashboard/DashboardOverview'),
   {
-    loading: () => <DashboardOverviewSkeleton />,
+    loading: () => <DashboardSkeleton />,
     ssr: false,
   }
 );

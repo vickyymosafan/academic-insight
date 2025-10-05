@@ -42,18 +42,23 @@ export default function Sidebar() {
     <>
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div className="relative z-50 lg:hidden">
-          <div className="fixed inset-0 bg-gray-900/80" onClick={() => setSidebarOpen(false)} />
+        <div className="relative z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu navigasi">
+          <div 
+            className="fixed inset-0 bg-gray-900/80" 
+            onClick={() => setSidebarOpen(false)}
+            aria-hidden="true"
+          />
           
           <div className="fixed inset-0 flex">
             <div className="relative mr-16 flex w-full max-w-xs flex-1">
               <div className="absolute left-full top-0 flex w-16 justify-center pt-5">
                 <button
                   type="button"
-                  className="-m-2.5 p-2.5"
+                  className="-m-2.5 p-2.5 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 rounded-md"
                   onClick={() => setSidebarOpen(false)}
+                  aria-label="Tutup menu navigasi"
                 >
-                  <span className="sr-only">Close sidebar</span>
+                  <span className="sr-only">Tutup sidebar</span>
                   <XMarkIcon className="h-6 w-6 text-white" aria-hidden="true" />
                 </button>
               </div>
@@ -61,14 +66,14 @@ export default function Sidebar() {
               <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-2">
                 <div className="flex h-16 shrink-0 items-center">
                   <div className="flex items-center">
-                    <AcademicCapIcon className="h-8 w-8 text-blue-600" />
+                    <AcademicCapIcon className="h-8 w-8 text-blue-600" aria-hidden="true" />
                     <span className="ml-2 text-xl font-bold text-gray-900">
                       Academic Insight
                     </span>
                   </div>
                 </div>
                 
-                <nav className="flex flex-1 flex-col">
+                <nav className="flex flex-1 flex-col" aria-label="Menu navigasi utama">
                   <ul role="list" className="flex flex-1 flex-col gap-y-7">
                     <li>
                       <ul role="list" className="-mx-2 space-y-1">
@@ -78,12 +83,13 @@ export default function Sidebar() {
                             <li key={item.name}>
                               <Link
                                 href={item.href}
-                                className={`group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-colors ${
+                                className={`group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                                   isActive
                                     ? 'bg-blue-50 text-blue-600'
                                     : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
                                 }`}
                                 onClick={() => setSidebarOpen(false)}
+                                aria-current={isActive ? 'page' : undefined}
                               >
                                 <item.icon
                                   className={`h-6 w-6 shrink-0 ${
@@ -111,14 +117,14 @@ export default function Sidebar() {
         <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6">
           <div className="flex h-16 shrink-0 items-center">
             <div className="flex items-center">
-              <AcademicCapIcon className="h-8 w-8 text-blue-600" />
+              <AcademicCapIcon className="h-8 w-8 text-blue-600" aria-hidden="true" />
               <span className="ml-2 text-xl font-bold text-gray-900">
                 Academic Insight
               </span>
             </div>
           </div>
           
-          <nav className="flex flex-1 flex-col">
+          <nav className="flex flex-1 flex-col" aria-label="Menu navigasi utama">
             <ul role="list" className="flex flex-1 flex-col gap-y-7">
               <li>
                 <ul role="list" className="-mx-2 space-y-1">
@@ -128,11 +134,12 @@ export default function Sidebar() {
                       <li key={item.name}>
                         <Link
                           href={item.href}
-                          className={`group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-colors ${
+                          className={`group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                             isActive
                               ? 'bg-blue-50 text-blue-600'
                               : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
                           }`}
+                          aria-current={isActive ? 'page' : undefined}
                         >
                           <item.icon
                             className={`h-6 w-6 shrink-0 ${
@@ -156,10 +163,12 @@ export default function Sidebar() {
       <div className="sticky top-0 z-40 flex items-center gap-x-6 bg-white px-4 py-4 shadow-sm sm:px-6 lg:hidden">
         <button
           type="button"
-          className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
+          className="-m-2.5 p-2.5 text-gray-700 lg:hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md"
           onClick={() => setSidebarOpen(true)}
+          aria-label="Buka menu navigasi"
+          aria-expanded={sidebarOpen}
         >
-          <span className="sr-only">Open sidebar</span>
+          <span className="sr-only">Buka sidebar</span>
           <Bars3Icon className="h-6 w-6" aria-hidden="true" />
         </button>
         

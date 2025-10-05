@@ -44,9 +44,10 @@ export default function Header() {
         {/* Notifications button */}
         <button
           type="button"
-          className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500"
+          className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md transition-colors"
+          aria-label="Lihat notifikasi"
         >
-          <span className="sr-only">View notifications</span>
+          <span className="sr-only">Lihat notifikasi</span>
           <BellIcon className="h-6 w-6" aria-hidden="true" />
         </button>
 
@@ -55,19 +56,22 @@ export default function Header() {
 
         {/* Profile dropdown */}
         <Menu as="div" className="relative">
-          <Menu.Button className="-m-1.5 flex items-center p-1.5">
-            <span className="sr-only">Open user menu</span>
+          <Menu.Button 
+            className="-m-1.5 flex items-center p-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md"
+            aria-label={`Menu pengguna ${user?.profile.full_name}`}
+          >
+            <span className="sr-only">Buka menu pengguna</span>
             <div className="flex items-center">
               {user?.profile.avatar_url ? (
                 <Image
                   className="h-8 w-8 rounded-full bg-gray-50"
                   src={user.profile.avatar_url}
-                  alt={user.profile.full_name}
+                  alt=""
                   width={32}
                   height={32}
                 />
               ) : (
-                <UserCircleIcon className="h-8 w-8 text-gray-400" />
+                <UserCircleIcon className="h-8 w-8 text-gray-400" aria-hidden="true" />
               )}
               <span className="hidden lg:flex lg:items-center">
                 <span className="ml-4 text-sm font-semibold leading-6 text-gray-900" aria-hidden="true">

@@ -34,10 +34,13 @@ export default function LoadingSpinner({
       <div
         className={`${sizeClasses[size]} ${colorClasses[color]} rounded-full animate-spin`}
         role="status"
+        aria-live="polite"
         aria-label={label || 'Memuat...'}
-      />
+      >
+        <span className="sr-only">{label || 'Memuat...'}</span>
+      </div>
       {label && (
-        <p className="mt-2 text-sm text-gray-600">{label}</p>
+        <p className="mt-2 text-sm text-gray-600" aria-hidden="true">{label}</p>
       )}
     </div>
   );

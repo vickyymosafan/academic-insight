@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useId } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/lib/toast-context';
 import type { Student } from '@/types/database';
 import type { FormValidationError } from '@/types/api';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { announceToScreenReader } from '@/lib/accessibility';
 
 interface StudentFormProps {
   initialData?: Student;
@@ -13,6 +14,7 @@ interface StudentFormProps {
 }
 
 export default function StudentForm({ initialData, isEdit = false }: StudentFormProps) {
+  const formId = useId();
   const [formData, setFormData] = useState({
     nim: initialData?.nim || '',
     name: initialData?.name || '',
@@ -81,73 +83,105 @@ export default function StudentForm({ initialData, isEdit = false }: StudentForm
 
       // Success
       toast.success(result.message);
+      announceToScreenReader(result.message, 'polite');
       router.push('/admin/students');
       router.refresh();
 
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Terjadi kesalahan');
+      const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan';
+      toast.error(errorMessage);
+      announceToScreenReader(errorMessage, 'assertive');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <form 
+      onSubmit={handleSubmit} 
+      className="space-y-6 max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md"
+      aria-label={isEdit ? 'Form edit data mahasiswa' : 'Form tambah data mahasiswa'}
+      noValidate
+    >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* NIM Input */}
         <div>
-          <label htmlFor="nim" className="block text-sm font-medium text-gray-700 mb-2">
-            NIM *
+          <label htmlFor={`${formId}-nim`} className="block text-sm font-medium text-gray-700 mb-2">
+            NIM <span className="text-red-500" aria-label="wajib diisi">*</span>
           </label>
           <input
             type="text"
-            id="nim"
+            id={`${formId}-nim`}
             name="nim"
             value={formData.nim}
             onChange={(e) => setFormData({ ...formData, nim: e.target.value })}
             disabled={isEdit || isLoading}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed ${
-              errors.nim ? 'border-red-500' : 'border-gray-300'
+            required
+            aria-required="true"
+            aria-invalid={!!errors.nim}
+            aria-describedby={errors.nim ? `${formId}-nim-error` : isEdit ? `${formId}-nim-help` : undefined}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors ${
+              errors.nim ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
             }`}
             placeholder="Masukkan NIM"
           />
-          {errors.nim && <p className="mt-1 text-sm text-red-600">{errors.nim}</p>}
-          {isEdit && <p className="mt-1 text-xs text-gray-500">NIM tidak dapat diubah</p>}
+          {errors.nim && (
+            <p id={`${formId}-nim-error`} className="mt-1 text-sm text-red-600" role="alert">
+              {errors.nim}
+            </p>
+          )}
+          {isEdit && (
+            <p id={`${formId}-nim-help`} className="mt-1 text-xs text-gray-500">
+              NIM tidak dapat diubah
+            </p>
+          )}
         </div>
 
         {/* Name Input */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-            Nama Lengkap *
+          <label htmlFor={`${formId}-name`} className="block text-sm font-medium text-gray-700 mb-2">
+            Nama Lengkap <span className="text-red-500" aria-label="wajib diisi">*</span>
           </label>
           <input
             type="text"
-            id="name"
+            id={`${formId}-name`}
             name="name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             disabled={isLoading}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 ${
-              errors.name ? 'border-red-500' : 'border-gray-300'
+            required
+            aria-required="true"
+            aria-invalid={!!errors.name}
+            aria-describedby={errors.name ? `${formId}-name-error` : undefined}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:bg-gray-100 transition-colors ${
+              errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
             }`}
             placeholder="Masukkan nama lengkap"
           />
-          {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+          {errors.name && (
+            <p id={`${formId}-name-error`} className="mt-1 text-sm text-red-600" role="alert">
+              {errors.name}
+            </p>
+          )}
         </div>
 
         {/* Program Studi Select */}
         <div>
-          <label htmlFor="program_studi" className="block text-sm font-medium text-gray-700 mb-2">
-            Program Studi *
+          <label htmlFor={`${formId}-program`} className="block text-sm font-medium text-gray-700 mb-2">
+            Program Studi <span className="text-red-500" aria-label="wajib diisi">*</span>
           </label>
           <select
-            id="program_studi"
+            id={`${formId}-program`}
             name="program_studi"
             value={formData.program_studi}
             onChange={(e) => setFormData({ ...formData, program_studi: e.target.value })}
             disabled={isLoading}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 ${
-              errors.program_studi ? 'border-red-500' : 'border-gray-300'
+            required
+            aria-required="true"
+            aria-invalid={!!errors.program_studi}
+            aria-describedby={errors.program_studi ? `${formId}-program-error` : undefined}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:bg-gray-100 transition-colors ${
+              errors.program_studi ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
             }`}
           >
             <option value="">Pilih Program Studi</option>
@@ -156,7 +190,11 @@ export default function StudentForm({ initialData, isEdit = false }: StudentForm
             <option value="Teknik Komputer">Teknik Komputer</option>
             <option value="Manajemen Informatika">Manajemen Informatika</option>
           </select>
-          {errors.program_studi && <p className="mt-1 text-sm text-red-600">{errors.program_studi}</p>}
+          {errors.program_studi && (
+            <p id={`${formId}-program-error`} className="mt-1 text-sm text-red-600" role="alert">
+              {errors.program_studi}
+            </p>
+          )}
         </div>
 
         {/* Angkatan Input */}
@@ -255,17 +293,20 @@ export default function StudentForm({ initialData, isEdit = false }: StudentForm
         <button
           type="submit"
           disabled={isLoading}
-          className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+          aria-busy={isLoading}
+          aria-live="polite"
+          className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
         >
-          {isLoading && <LoadingSpinner size="sm" />}
-          {isLoading ? 'Menyimpan...' : (isEdit ? 'Perbarui Data' : 'Simpan Data')}
+          {isLoading && <LoadingSpinner size="sm" color="white" />}
+          <span>{isLoading ? 'Menyimpan...' : (isEdit ? 'Perbarui Data' : 'Simpan Data')}</span>
         </button>
 
         <button
           type="button"
           onClick={() => router.back()}
           disabled={isLoading}
-          className="flex-1 sm:flex-none bg-gray-300 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Batal dan kembali ke halaman sebelumnya"
+          className="flex-1 sm:flex-none bg-gray-300 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Batal
         </button>
