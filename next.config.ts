@@ -43,14 +43,28 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+              // Allow scripts from self, unsafe-eval for Next.js, and unsafe-inline for inline scripts
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live",
+              // Allow styles from self, unsafe-inline for styled-components/emotion, and Google Fonts
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com",
+              // Allow fonts from self and Google Fonts
+              "font-src 'self' https://fonts.gstatic.com data:",
+              // Allow images from self, data URIs, HTTPS, and blob for dynamic content
               "img-src 'self' data: https: blob:",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+              // Allow connections to self, Supabase, and Vercel analytics
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://vercel.live wss://vercel.live",
+              // Prevent framing except from same origin
               "frame-ancestors 'self'",
+              // Restrict base URI to prevent base tag injection
               "base-uri 'self'",
-              "form-action 'self'"
+              // Restrict form submissions to same origin
+              "form-action 'self'",
+              // Prevent loading of plugins
+              "object-src 'none'",
+              // Upgrade insecure requests to HTTPS
+              "upgrade-insecure-requests",
+              // Block mixed content
+              "block-all-mixed-content"
             ].join('; ')
           }
         ],

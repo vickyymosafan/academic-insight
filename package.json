@@ -10,6 +10,8 @@
     "generate:icons": "node scripts/generate-icons-node.js",
     "test:rls": "node supabase/tests/run-rls-tests.js",
     "test:rls:sql": "psql %SUPABASE_DB_URL% -f supabase/tests/rls_policy_tests.sql",
+    "test:security": "node scripts/test-security-headers.js",
+    "test:security:prod": "node scripts/test-security-headers.js https://your-domain.vercel.app",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:reset": "supabase db reset"
