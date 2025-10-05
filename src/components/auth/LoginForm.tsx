@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { validateLoginData, sanitizeObject } from '@/lib/validation';
 import type { LoginCredentials } from '@/types/auth';
 
 export default function LoginForm() {
@@ -17,24 +18,21 @@ export default function LoginForm() {
   const router = useRouter();
 
   const validateForm = (): boolean => {
-    const errors: Record<string, string> = {};
-
-    // Email validation
-    if (!credentials.email.trim()) {
-      errors.email = 'Email wajib diisi';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email)) {
-      errors.email = 'Format email tidak valid';
+    // Sanitize and validate using centralized validation
+    const sanitizedCredentials = sanitizeObject(credentials);
+    const validation = validateLoginData(sanitizedCredentials);
+    
+    if (!validation.isValid) {
+      const errors: Record<string, string> = {};
+      validation.errors.forEach(err => {
+        errors[err.field] = err.message;
+      });
+      setValidationErrors(errors);
+      return false;
     }
-
-    // Password validation
-    if (!credentials.password) {
-      errors.password = 'Password wajib diisi';
-    } else if (credentials.password.length < 6) {
-      errors.password = 'Password minimal 6 karakter';
-    }
-
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
+    
+    setValidationErrors({});
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

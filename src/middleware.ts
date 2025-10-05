@@ -3,6 +3,17 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
+  // HTTPS redirect in production
+  if (
+    process.env.NODE_ENV === 'production' &&
+    req.headers.get('x-forwarded-proto') !== 'https'
+  ) {
+    return NextResponse.redirect(
+      `https://${req.headers.get('host')}${req.nextUrl.pathname}${req.nextUrl.search}`,
+      301
+    );
+  }
+
   let response = NextResponse.next({
     request: {
       headers: req.headers,
@@ -18,10 +29,18 @@ export async function middleware(req: NextRequest) {
           return req.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: Record<string, unknown>) {
+          // Ensure secure cookies in production
+          const secureOptions = {
+            ...options,
+            secure: process.env.NODE_ENV === 'production',
+            httpOnly: true,
+            sameSite: 'lax' as const,
+          };
+          
           req.cookies.set({
             name,
             value,
-            ...options,
+            ...secureOptions,
           });
           response = NextResponse.next({
             request: {
@@ -31,14 +50,21 @@ export async function middleware(req: NextRequest) {
           response.cookies.set({
             name,
             value,
-            ...options,
+            ...secureOptions,
           });
         },
         remove(name: string, options: Record<string, unknown>) {
+          const secureOptions = {
+            ...options,
+            secure: process.env.NODE_ENV === 'production',
+            httpOnly: true,
+            sameSite: 'lax' as const,
+          };
+          
           req.cookies.set({
             name,
             value: '',
-            ...options,
+            ...secureOptions,
           });
           response = NextResponse.next({
             request: {
@@ -48,7 +74,7 @@ export async function middleware(req: NextRequest) {
           response.cookies.set({
             name,
             value: '',
-            ...options,
+            ...secureOptions,
           });
         },
       },
